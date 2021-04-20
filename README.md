@@ -1,4 +1,4 @@
-# Em construção
+# Geração de dados de series temporais (InfluxDB)
 
 #Criação do ambiente
 
