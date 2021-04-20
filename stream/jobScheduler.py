@@ -23,11 +23,11 @@ class process():
             agora = dateutils.dateutils().dataAtual()
             valor = loaddata.getValor(self._dados, agora)
             if outlier != None:
-                print('Processando outlier.... >>>><<<<< ' + json.dumps(self.body))
                 db_mem.removerOutlier(hashutils.gerarHash(json.dumps(self.body)), self.index)
                 valor = valor * indice_aplicado
+                print('Processando outlier.... >>>><<<<< ', json.dumps(self.body), ' valor: ', str(valor))
             else:
-                valor = valor + numutils.calcRandom(self.amplitude, 0.05)
+                valor = valor + numutils.calcRandom(self.amplitude, 10)
 
             db = data_influxdb.ManagerInfluxDB()
 
@@ -42,9 +42,9 @@ class process():
                         }
                     ]
             # TODO: Arrumar o json de envio
-            res = db.sendData(envio)
+            db.sendData(envio)
 
-            print('Status do InfluxDB -> ' + str(res))
+            print('Status do InfluxDB!')
 
 def startEvent(_dados, intervalo, body, amplitude, index):
     threading.Timer(intervalo, startEvent, [_dados, intervalo, body, amplitude, index]).start() #Executa a cada um minuto
