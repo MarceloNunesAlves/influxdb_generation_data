@@ -21,7 +21,7 @@ class ManagerInfluxDB():
 
     def sendData(self, envio):
         try:
-            self._client.write_points(envio, database='data-test', time_precision="s")
+            self._client.write_points(envio, database='data-test', time_precision="m")
         except InfluxDBClientError as e:
             if "database not found" in str(e):
                 self._client.create_database('data-test')
