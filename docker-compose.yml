@@ -1,0 +1,46 @@
+version: '3.3'
+
+services:
+
+    influxdb:
+        image: influxdb:1.8-alpine
+        container_name: influxdb
+        environment:
+            - HOST=0.0.0.0
+            - DOCKER_INFLUXDB_INIT_MODE=setup
+            - DOCKER_INFLUXDB_INIT_USERNAME=myuser
+            - DOCKER_INFLUXDB_INIT_PASSWORD=mypass
+            - DOCKER_INFLUXDB_INIT_ORG=org
+            - DOCKER_INFLUXDB_INIT_BUCKET=org-bucket
+        ports:
+            - "8086:8086"
+        networks:
+            - mltest
+        volumes:
+            - volinfluxdb:/var/lib/influxdb
+
+    chronograf:
+        image: chronograf:1.8-alpine
+        container_name: chronograf
+        restart: 'no'
+        environment:
+            - INFLUXDB_URL=http://influxdb:8086
+            - HOST=0.0.0.0
+            - REPORTING_DISABLED=true
+            - LOG_LEVEL=info
+        ports:
+            - "8888:8888"
+        networks:
+            - mltest
+        depends_on:
+            - influxdb
+        volumes:
+            - chronograf:/var/lib/chronograf
+
+networks:
+    mltest:
+        driver: bridge
+
+volumes:
+    volinfluxdb:
+    chronograf:
