@@ -43,6 +43,25 @@ Metodo: POST
 }
 ```
 
+Inclusão de dados no influxDB (Acumulativo)
+
+Metodo: POST
+
+```
+{
+	"historico_em_dias": "15",
+	"intervalo": "60",
+	"index": "serie",
+	"amplitude": 30,
+	"acumulativo": "True",
+	"chave":
+	{
+		"campo_1": "Valor X",
+		"campo_2": "Valor Y"
+	}
+}
+```
+
 Inclusão de anomalia
 
 Metodo: PUT

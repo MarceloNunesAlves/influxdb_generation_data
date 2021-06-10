@@ -5,6 +5,7 @@ from stream import loaddata
 from stream import historico
 from stream import db_mem
 from utils import hashutils
+import concurrent.futures
 import threading
 import json
 
@@ -43,16 +44,31 @@ def incluirElemento():
         # Indice nao informado
         index = 'dados'
 
+    acumulativo = None
+    try:
+        acumulativo = bool(requisicao['acumulativo'])
+    except:
+        # Indice nao informado
+        acumulativo = False
+
     try:
         # Execução em paralelo - Envio para o influxDB do historico
-        thread = historico.TaskHistorico(dados, requisicao['chave'].copy(), intervalo, index,
-                                         int(requisicao['historico_em_dias']), amplitude)
-        thread.start()
-    except:
-        # Nao sera processado historico
-        pass
+        sum_valores = None
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(historico.TaskHistorico, dados, requisicao['chave'].copy(), intervalo, index,
+                                     int(requisicao['historico_em_dias']), amplitude, acumulativo)
+        #thread = historico.TaskHistorico(dados, requisicao['chave'].copy(), intervalo, index,
+        #                                 int(requisicao['historico_em_dias']), amplitude)
+        #thread.start()
 
-    jobScheduler.startEvent(dados, intervalo, requisicao['chave'].copy(), amplitude, index)
+            if acumulativo:
+                sum_valores = future.result()
+
+    except Exception as e:
+        # Nao sera processado historico
+        print('Erro na geração dos dados: ' + str(e))
+
+    jobScheduler.startEvent(dados, intervalo, requisicao['chave'].copy(), amplitude, index, acumulativo, sum_valores)
     return "Job enviado para o InfluxDB!"
 
 
@@ -81,4 +97,4 @@ def gerarOutlier():
 
 if __name__ == '__main__':
     db_mem.initDb()
-    app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=5002)

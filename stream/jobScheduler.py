@@ -6,12 +6,19 @@ from utils import hashutils, dateutils, numutils
 import json
 
 class process():
-    def __init__(self, _dados, intervalo, body, amplitude, index):
+
+    sum_valores = None
+
+    def __init__(self, _dados, intervalo, body, amplitude, index, acumulativo, sum_valores):
         self._dados     = _dados
         self.intervalo  = intervalo
         self.body       = body
         self.amplitude  = amplitude
         self.index      = index
+        self.acumulativo= acumulativo
+
+        if process.sum_valores is None:
+            process.sum_valores = sum_valores
 
     def run(self):
         if self.body != None:
@@ -24,10 +31,14 @@ class process():
             valor = loaddata.getValor(self._dados, agora)
             if outlier != None:
                 db_mem.removerOutlier(hashutils.gerarHash(json.dumps(self.body)), self.index)
-                valor = valor * indice_aplicado
+                valor = valor * indice_aplicado * 1.0
                 print('Processando outlier.... >>>><<<<< ', json.dumps(self.body), ' valor: ', str(valor))
             else:
                 valor = valor + numutils.calcRandom(self.amplitude, 10)
+
+            if self.acumulativo:
+                valor = valor + process.sum_valores
+                process.sum_valores = valor
 
             db = data_influxdb.ManagerInfluxDB()
 
@@ -41,12 +52,12 @@ class process():
                             }
                         }
                     ]
-            # TODO: Arrumar o json de envio
             db.sendData(envio)
 
-            print('Status do InfluxDB!')
+            print('Dado enviado para o InfluxDB -> ', json.dumps(envio))
 
-def startEvent(_dados, intervalo, body, amplitude, index):
-    threading.Timer(intervalo, startEvent, [_dados, intervalo, body, amplitude, index]).start() #Executa a cada um minuto
-    process(_dados, intervalo, body, amplitude, index).run()
+def startEvent(_dados, intervalo, body, amplitude, index, acumulativo, sum_valores):
+    threading.Timer(intervalo, startEvent, [_dados, intervalo, body, amplitude,
+                                            index, acumulativo, sum_valores]).start() #Executa a cada um minuto
+    process(_dados, intervalo, body, amplitude, index, acumulativo, sum_valores).run()
 
