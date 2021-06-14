@@ -5,9 +5,10 @@ from stream import db_mem
 from utils import hashutils, dateutils, numutils
 import json
 
-class process():
+# Dados em memoria
+memory_sum_valores = {}
 
-    sum_valores = None
+class process():
 
     def __init__(self, _dados, intervalo, body, amplitude, index, acumulativo, sum_valores):
         self._dados     = _dados
@@ -17,8 +18,10 @@ class process():
         self.index      = index
         self.acumulativo= acumulativo
 
-        if process.sum_valores is None:
-            process.sum_valores = sum_valores
+        try:
+            self.sum_valores = memory_sum_valores[hashutils.gerarHash(json.dumps(self.body))]
+        except:
+            self.sum_valores = sum_valores
 
     def run(self):
         if self.body != None:
@@ -34,11 +37,11 @@ class process():
                 valor = valor * indice_aplicado * 1.0
                 print('Processando outlier.... >>>><<<<< ', json.dumps(self.body), ' valor: ', str(valor))
             else:
-                valor = valor + numutils.calcRandom(self.amplitude, 10)
+                valor = valor + numutils.calcRandom(self.amplitude, 5)
 
             if self.acumulativo:
-                valor = valor + process.sum_valores
-                process.sum_valores = valor
+                valor = valor + self.sum_valores
+                memory_sum_valores[hashutils.gerarHash(json.dumps(self.body))] = valor
 
             db = data_influxdb.ManagerInfluxDB()
 

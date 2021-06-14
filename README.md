@@ -53,7 +53,7 @@ Metodo: POST
 	"intervalo": "60",
 	"index": "serie",
 	"amplitude": 30,
-	"acumulativo": "True",
+	"acumulativo": false,
 	"chave":
 	{
 		"campo_1": "Valor X",

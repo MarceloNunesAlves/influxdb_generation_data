@@ -68,6 +68,7 @@ def incluirElemento():
         # Nao sera processado historico
         print('Erro na geração dos dados: ' + str(e))
 
+
     jobScheduler.startEvent(dados, intervalo, requisicao['chave'].copy(), amplitude, index, acumulativo, sum_valores)
     return "Job enviado para o InfluxDB!"
 

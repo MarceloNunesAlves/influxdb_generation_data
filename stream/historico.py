@@ -19,10 +19,12 @@ def TaskHistorico(_dados, _json, _intervalo, _index, _historico_em_dias, _amplit
 
             envios = []
             count = 1
+            end_date = dateutils.dateutils().dataAtual()
+            end_date = dateutils.dateutils().addMinutes(end_date, -1)
 
-            for new_date in pd.date_range(end=dateutils.dateutils().dataAtual(), periods=(_historico_em_dias*24*60), freq=freqCalc):
+            for new_date in pd.date_range(end=end_date, periods=(_historico_em_dias*24*60), freq=freqCalc):
                 valor = loaddata.getValor(_dados, new_date)
-                valor = valor + numutils.calcRandom(_amplitude, 10)
+                valor = valor + numutils.calcRandom(_amplitude, 15)
                 sum_valores += valor
 
                 dict_envio = {"measurement": _index,

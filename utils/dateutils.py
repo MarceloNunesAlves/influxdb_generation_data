@@ -45,5 +45,8 @@ class dateutils():
     def addMinutesDateStr(self, dt, numMinutes):
         return (datetime.strptime(dt+'T00:00:00.000Z', '%Y-%m-%dT%H:%M:%S.000Z') + timedelta(minutes=numMinutes)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
+    def addMinutes(self, dt, numMinutes):
+        return (dt + timedelta(minutes=numMinutes))
+
     def addMinutesDate(self, dt, numMinutes):
         return (dt + timedelta(minutes=numMinutes)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
